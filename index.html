@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8 Point Trading</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0a;
+        --text: #f0ede6;
+        --accent: #c9a84c;
+        --muted: rgba(240, 237, 230, 0.64);
+        --border: rgba(255, 255, 255, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.6) 0.5px, transparent 0.5px);
+        background-size: 3px 3px;
+        z-index: 0;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.26;
+        background-image: linear-gradient(rgba(201, 168, 76, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(201, 168, 76, 0.05) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: radial-gradient(circle at center, black 12%, transparent 78%);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page-shell {
+        position: relative;
+        z-index: 1;
+      }
+
+      .container {
+        width: min(900px, 100% - 3rem);
+        margin: 0 auto;
+      }
+
+      .site-nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(10, 10, 10, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(4px);
+      }
+
+      .site-nav-inner {
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.25rem;
+      }
+
+      .logo {
+        margin: 0;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .brand-logo {
+        display: block;
+        width: 28px;
+        height: auto;
+        filter: grayscale(1) brightness(1.15) contrast(1.06);
+      }
+
+      .nav-toggle {
+        display: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: transparent;
+        color: var(--text);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1;
+        border-radius: 0.35rem;
+        padding: 0.55rem 0.7rem;
+        cursor: pointer;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-links a {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 180ms ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a:focus-visible {
+        color: var(--text);
+      }
+
+      main {
+        padding-block: 4.5rem 6rem;
+      }
+
+      section {
+        padding-block: 4.5rem;
+      }
+
+      .hero {
+        padding-top: 2.5rem;
+      }
+
+      .hero-logo {
+        display: block;
+        width: min(76px, 100%);
+        height: auto;
+        margin: 0 0 1.2rem;
+        filter: grayscale(1) brightness(1.15) contrast(1.1);
+      }
+
+      .math-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.73rem;
+        letter-spacing: 0.06em;
+        color: rgba(201, 168, 76, 0.9);
+        text-transform: uppercase;
+      }
+
+      .math-indicator::before {
+        content: "f(x)";
+        color: rgba(201, 168, 76, 0.72);
+      }
+
+      .math-indicator::after {
+        content: "";
+        width: 44px;
+        height: 1px;
+        background: rgba(201, 168, 76, 0.72);
+      }
+
+      .math-strip {
+        margin-top: 1.1rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.74rem;
+        color: rgba(240, 237, 230, 0.45);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        overflow: hidden;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.8rem;
+      }
+
+      h1,
+      h2 {
+        font-family: "DM Serif Display", Georgia, serif;
+        font-weight: 400;
+        line-height: 1.14;
+        margin: 0 0 1rem;
+      }
+
+      h1 {
+        font-size: clamp(2.35rem, 7.5vw, 4.35rem);
+        letter-spacing: 0.01em;
+      }
+
+      .hero-eight {
+        color: var(--accent);
+        font-size: 1.1em;
+      }
+
+      .subheading {
+        font-size: clamp(1.06rem, 3.2vw, 1.35rem);
+        color: rgba(240, 237, 230, 0.9);
+        margin: 0 0 1.25rem;
+      }
+
+      p {
+        margin: 0 0 1rem;
+        max-width: 76ch;
+      }
+
+      .section-header {
+        margin-bottom: 1.15rem;
+      }
+
+      .section-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 0.85rem;
+      }
+
+      .section-mark::before {
+        content: "";
+        display: inline-block;
+        width: 40px;
+        height: 1px;
+        background: var(--accent);
+      }
+
+      .focus-grid {
+        margin-top: 1.65rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .focus-card {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.015);
+        padding: 1.2rem 1.1rem 1.1rem;
+        transition: transform 180ms ease, border-color 180ms ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .focus-card::before {
+        content: attr(data-metric);
+        position: absolute;
+        top: 0.55rem;
+        right: 0.7rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: rgba(201, 168, 76, 0.75);
+        letter-spacing: 0.05em;
+      }
+
+      .focus-card:hover,
+      .focus-card:focus-within {
+        transform: translateY(-3px);
+        border-color: rgba(201, 168, 76, 0.5);
+      }
+
+      .focus-card h3 {
+        margin: 0 0 0.45rem;
+        font-family: "DM Serif Display", Georgia, serif;
+        font-size: 1.23rem;
+        font-weight: 400;
+        max-width: 18ch;
+      }
+
+      .focus-card p {
+        margin: 0;
+        color: rgba(240, 237, 230, 0.84);
+      }
+
+      .gold-link {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .gold-link:hover,
+      .gold-link:focus-visible {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      footer {
+        padding: 0.75rem 0 2rem;
+      }
+
+      .footer-text {
+        margin: 0;
+        text-align: center;
+        color: rgba(240, 237, 230, 0.5);
+        font-size: 0.84rem;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .fade-up {
+        opacity: 0;
+        transform: translateY(16px);
+        animation: fadeUp 620ms cubic-bezier(0.2, 0.65, 0.2, 1) forwards;
+      }
+
+      .hero h1.fade-up {
+        animation-delay: 0.2s;
+      }
+
+      .hero .subheading.fade-up {
+        animation-delay: 0.34s;
+      }
+
+      .hero .hero-body.fade-up {
+        animation-delay: 0.46s;
+      }
+
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 760px) {
+        .nav-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .site-nav-inner {
+          min-height: 64px;
+          align-items: flex-start;
+          padding-block: 0.65rem;
+          flex-wrap: wrap;
+        }
+
+        .nav-links {
+          display: none;
+          width: 100%;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.7rem;
+          padding: 0.3rem 0 0.5rem;
+        }
+
+        .nav-links.is-open {
+          display: flex;
+        }
+
+        .focus-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .container {
+          width: min(900px, 100% - 2rem);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .fade-up {
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+
+        .focus-card {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-nav">
+        <div class="container site-nav-inner">
+          <div class="brand">
+            <img
+              class="brand-logo"
+              src="/Users/jingruliu/.cursor/projects/Users-jingruliu-Desktop-Eight-point/assets/4d943006-a58b-4768-9d07-06bcd4a534f4-4e6789c1-f8db-411c-991a-585abbbbb98d.png"
+              alt="8 Point Trading logo"
+            />
+          </div>
+          <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primary-nav">
+            Menu
+          </button>
+          <nav aria-label="Primary navigation">
+            <ul class="nav-links" id="primary-nav">
+              <li><a href="#what-we-do">What We Do</a></li>
+              <li><a href="#careers">Careers</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main class="container">
+        <section class="hero" aria-labelledby="hero-title">
+          <img
+            class="hero-logo fade-up"
+            src="/Users/jingruliu/.cursor/projects/Users-jingruliu-Desktop-Eight-point/assets/4d943006-a58b-4768-9d07-06bcd4a534f4-4e6789c1-f8db-411c-991a-585abbbbb98d.png"
+            alt="8 Point Trading logo"
+          />
+          <div class="math-indicator fade-up" aria-hidden="true">Model-Driven Trading</div>
+          <h1 id="hero-title" class="fade-up"><span class="hero-eight">8</span> Point Trading</h1>
+          <p class="subheading fade-up">Mathematical trading for sports and event markets.</p>
+          <p class="hero-body fade-up">
+            8 Point Trading is a small, research-driven trading team applying mathematical models to sports and event-based markets. We combine quantitative research, statistical modelling, and market experience to identify opportunities, manage risk, and provide liquidity across exchange-based markets.
+          </p>
+          <div class="math-strip fade-up" aria-hidden="true">
+            P(event) x Fair Value x Execution Edge x Liquidity x Risk Controls x Research Cycle
+          </div>
+        </section>
+
+        <section id="what-we-do" aria-labelledby="what-we-do-title">
+          <header class="section-header">
+            <div class="section-mark">02 -</div>
+            <h2 id="what-we-do-title">What We Do</h2>
+          </header>
+          <p>We develop and operate systematic trading strategies built around data, probability, and disciplined execution.</p>
+          <p>Our work focuses on:</p>
+          <div class="focus-grid">
+            <article class="focus-card" data-metric="mu/sigma">
+              <h3>Quantitative modelling</h3>
+              <p>Building mathematical and statistical models to estimate fair value in fast-moving markets.</p>
+            </article>
+            <article class="focus-card" data-metric="spread">
+              <h3>Market making and liquidity provision</h3>
+              <p>Providing prices and liquidity across selected sports and event markets.</p>
+            </article>
+            <article class="focus-card" data-metric="backtest">
+              <h3>Research-led trading</h3>
+              <p>Using data analysis, backtesting, and model development to improve decision-making over time.</p>
+            </article>
+            <article class="focus-card" data-metric="VaR">
+              <h3>Risk management</h3>
+              <p>Applying structured risk controls to ensure our trading activity remains disciplined and scalable.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="careers" aria-labelledby="careers-title">
+          <header class="section-header">
+            <div class="section-mark">03 -</div>
+            <h2 id="careers-title">Careers</h2>
+          </header>
+          <p>
+            We are interested in hearing from people with strong quantitative backgrounds who are excited by trading, probability, statistics, and market design.
+          </p>
+          <p>
+            This may suit candidates with experience or interest in: Quantitative research, statistics, mathematics, computer science, machine learning, sports modelling, financial markets, or systematic trading.
+          </p>
+          <p>If you are interested in quantitative research opportunities with 8 Point Trading, please contact:</p>
+          <p><a class="gold-link" href="mailto:careers@8pointtrading.com">careers@8pointtrading.com</a></p>
+        </section>
+
+        <section id="contact" aria-labelledby="contact-title">
+          <header class="section-header">
+            <div class="section-mark">04 -</div>
+            <h2 id="contact-title">Contact</h2>
+          </header>
+          <p>For general enquiries, please contact:</p>
+          <p><a class="gold-link" href="mailto:info@8pointtrading.com">info@8pointtrading.com</a></p>
+        </section>
+      </main>
+
+      <footer>
+        <div class="container">
+          <p class="footer-text">&copy; 2025 8 Point Trading. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var toggle = document.querySelector(".nav-toggle");
+        var navLinks = document.getElementById("primary-nav");
+        var navAnchors = navLinks ? navLinks.querySelectorAll("a") : [];
+
+        if (!toggle || !navLinks) return;
+
+        toggle.addEventListener("click", function () {
+          var isOpen = navLinks.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(isOpen));
+        });
+
+        navAnchors.forEach(function (anchor) {
+          anchor.addEventListener("click", function () {
+            if (window.matchMedia("(max-width: 760px)").matches) {
+              navLinks.classList.remove("is-open");
+              toggle.setAttribute("aria-expanded", "false");
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
